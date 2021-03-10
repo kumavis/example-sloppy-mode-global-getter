@@ -76,8 +76,12 @@ test('define getter - strict', t => {
   )
 })
 
+// since we properly set configurable: true here, we're allowing the prop to be overridden.
+// previously confurable was default (false) so the second property definition was failing silently (!)
+// the test now passes
+
 test('global define getter - sloppy', t => {
-  Reflect.defineProperty(globalThis, 'xyz', { get () { return this }})
+  Reflect.defineProperty(globalThis, 'xyz', { get () { return this }, configurable: true })
   const getter = Reflect.getOwnPropertyDescriptor(globalThis, 'xyz').get
   t.is(
     getter.call(),
@@ -87,10 +91,10 @@ test('global define getter - sloppy', t => {
 
 test('global define getter - strict', t => {
   'use strict'
-  Reflect.defineProperty(globalThis, 'xyz', { get () { return this }})
+  Reflect.defineProperty(globalThis, 'xyz', { get () { return this }, configurable: true })
   const getter = Reflect.getOwnPropertyDescriptor(globalThis, 'xyz').get
   t.is(
     getter.call(),
-    undefined // <------- this fails, it is actually globalThis
+    undefined
   )
 })
